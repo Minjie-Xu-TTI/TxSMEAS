@@ -462,7 +462,7 @@
             <div class="space-y-1.5">
               <div class="font-extrabold text-red-900 uppercase tracking-wider text-[11px]">Equation 2: 1-Way Door-to-Door Travel Time (Min)</div>
               <p class="text-slate-700 leading-relaxed">
-                Computes 1-way travel time for route distance <span class="math-inline"><i>D</i></span> (miles), modal speed <span class="math-inline"><i>V</i><sub><i>m</i></sub></span> (walk = 2.6 mph, bike = 7.8 mph, car = 22.0 mph), intersection wait <span class="math-inline"><i>W</i><sub><i>c</i></sub></span>, and car drop-off queue delay <span class="math-inline"><i>Q</i><sub>drop</sub></span>:
+                Computes 1-way travel time for route distance <span class="math-inline"><i>D</i></span> (miles), modal speed <span class="math-inline"><i>V</i><sub><i>m</i></sub></span> (walk = 2.6 mph, bike = 7.8 mph, car = 22.0 mph), intersection wait <span class="math-inline"><i>W</i><sub><i>c</i></sub></span>, binary indicator <span class="math-inline"><b>I</b>(<i>m</i> = car)</span> (= 1 if driving, 0 otherwise), and car drop-off queue delay <span class="math-inline"><i>Q</i><sub>drop</sub></span>:
               </p>
             </div>
             <div class="math-display shadow-inner">
@@ -473,7 +473,7 @@
                 <span class="math-frac-den"><i>V</i><sub><i>m</i></sub></span>
               </span>
               <span class="text-xl font-light">)</span>
-              <span>&times; 60 + <i>W</i><sub><i>c</i></sub> + &#x1D540;(<i>m</i> = <span class="font-serif">car</span>) &middot; <i>Q</i><sub>drop</sub></span>
+              <span>&times; 60 + <i>W</i><sub><i>c</i></sub> + <b class="font-serif">I</b>(<i>m</i> = <span class="font-serif">car</span>) &middot; <i>Q</i><sub>drop</sub></span>
             </div>
           </div>
 
@@ -482,7 +482,7 @@
             <div class="space-y-1.5">
               <div class="font-extrabold text-red-900 uppercase tracking-wider text-[11px]">Equation 3: Daily Student MVPA &amp; Fleet Queue Savings</div>
               <p class="text-slate-700 leading-relaxed">
-                Round-trip daily MVPA applies Meta-Analysis intensity factors (<span class="math-inline">&alpha;<sub>walk</sub> = 0.86, &alpha;<sub>bike</sub> = 0.92</span>). District queue hours saved scale by enrollment <span class="math-inline"><i>E</i><sub><i>i</i></sub></span>, car share <span class="math-inline"><i>S</i><sub>car</sub></span>, shift fraction <span class="math-inline">&Delta;<sub><i>s</i></sub></span>, and occupancy factor (0.82):
+                Round-trip daily physical activity (<span class="math-inline"><b>MVPA</b><sub>day</sub></span>) scales 1-way active duration <span class="math-inline"><i>T</i><sub>active</sub></span> by intensity factor <span class="math-inline">&alpha;<sub><i>m</i></sub></span> (<span class="math-inline">&alpha;<sub>walk</sub> = 0.86, &alpha;<sub>bike</sub> = 0.92</span>). Daily queue hours saved (<span class="math-inline"><b>Hours</b><sub>saved</sub></span>) scale by enrollment <span class="math-inline"><i>E</i><sub><i>i</i></sub></span>, car share <span class="math-inline"><i>S</i><sub>car</sub></span>, shift fraction <span class="math-inline">&Delta;<sub><i>s</i></sub></span>, occupancy factor (0.82), and queue delay <span class="math-inline"><i>Q</i><sub>drop</sub></span>:
               </p>
             </div>
             <div class="math-display shadow-inner flex-col gap-1.5 py-2">
@@ -616,10 +616,10 @@
             </div>
 
             <div class="bg-slate-900 text-white rounded-xl p-4 shadow-sm">
-              <div class="text-xs font-bold uppercase tracking-wider text-amber-300">Door-to-Door Time &amp; Queue Impact</div>
-              <div id="outTimeComparison" class="text-2xl sm:text-3xl font-extrabold mt-1">19.6 min vs 14.8 min</div>
+              <div class="text-xs font-bold uppercase tracking-wider text-amber-300">One-Way Commute &amp; School Drop-Off Delay</div>
+              <div id="outTimeComparison" class="text-xl sm:text-2xl font-extrabold mt-1">21.7 min [Walk] vs. 11.6 min [Car]</div>
               <div id="outQueueSaved" class="text-xs text-slate-300 mt-1">
-                Eliminates <strong>6.8 min</strong> of school-zone vehicle drop-off queue idling &amp; improves arrival predictability to <strong>94%</strong>
+                Saves <strong>6.8 min</strong> of car-line drop-off idling | <strong>94%</strong> on-time arrival reliability
               </div>
             </div>
 
@@ -1474,10 +1474,30 @@
       document.getElementById("outWeeklyMvpa").innerHTML =
         `+${weeklyMvpa} min/week (${days} days) • Achieves <strong>${cdcPct}%</strong> of 60-min daily youth physical activity benchmark via commute alone`;
 
-      document.getElementById("outTimeComparison").textContent = `${selectedOneWayMin}m vs ${carOneWayMin}m (1-way)`;
+      const currentMode = document.getElementById("simCurrentMode").value || "car";
+      const modeShortLabels = {
+        car: "Car",
+        walk: "Walk",
+        bike: "Bike/Scooter",
+        bus: "Bus",
+        parkwalk: "Park & Walk"
+      };
+      const modeOneWayTimes = {
+        car: carOneWayMin,
+        walk: walkOneWayMin,
+        bike: bikeOneWayMin,
+        bus: busOneWayMin,
+        parkwalk: parkWalkOneWayMin
+      };
+      const curLabel = modeShortLabels[currentMode] || "Car";
+      const tgtLabel = modeShortLabels[targetMode] || "Target";
+      const curOneWayMin = modeOneWayTimes[currentMode] !== undefined ? modeOneWayTimes[currentMode] : carOneWayMin;
+
+      document.getElementById("outTimeComparison").textContent =
+        `${selectedOneWayMin} min [${tgtLabel}] vs. ${curOneWayMin} min [${curLabel}]`;
       const relGain = Math.min(98, isd.reliability + (upgradeCrossings ? 8 : 4));
       document.getElementById("outQueueSaved").innerHTML =
-        `Eliminates <strong>${isd.queueMin} min</strong> of school-zone drop-off queue idling &amp; boosts arrival predictability to <strong>${relGain}%</strong>`;
+        `Saves <strong>${isd.queueMin} min</strong> of car-line drop-off idling | <strong>${relGain}%</strong> on-time arrival reliability`;
 
       // District-Wide Aggregates
       const carCommuters = Math.round(isd.students * (isd.carPct / 100));
