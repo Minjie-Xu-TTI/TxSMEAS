@@ -1,0 +1,23 @@
+{
+  "project": "CEM Project #02-09-TTI: Health and Activity Impacts of Student Commute Modes",
+  "grant": "USDOT Grant #69A3552348329 (Center for Efficient Mobility)",
+  "principal_investigator": "Minjie Xu, Texas A&M Transportation Institute (m-xu@tti.tamu.edu)",
+  "instrument_title": "Active and Safe Route to School Study \u2014 Standardized 20-Item Parent Audit Toolkit",
+  "sections": [
+    {
+      "section": 1,
+      "title": "Travel to and from School (Efficiency, Predictability & Route Infrastructure)",
+      "items": "Q1 to Q15"
+    },
+    {
+      "section": 2,
+      "title": "Physical Activity and Health (Light, Moderate, Vigorous PA & Sedentary Sitting Hours)",
+      "items": "Q16 to Q17"
+    },
+    {
+      "section": 3,
+      "title": "About Your Family & Household Vehicles",
+      "items": "Q18 to Q20"
+    }
+  ]
+}
